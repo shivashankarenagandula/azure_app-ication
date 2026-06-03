@@ -539,6 +539,7 @@ function renderQuestion() {
     // Store new correct answer position
     q.shuffledAnswer = shuffledOptions.findIndex(
         opt => opt.originalIndex === q.ans
+      q.ans = q.shuffledAnswer;
     );
 
     const letters = ['A', 'B', 'C', 'D'];
