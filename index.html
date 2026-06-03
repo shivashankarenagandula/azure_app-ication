@@ -517,9 +517,35 @@ function shuffle(arr){
   return arr;
 }
 function startTopic(topic){
-  currentTopic=topic;
-  currentQuestions=shuffle([...QUESTIONS[topic]]);
-  currentIndex=0; score=0;
+  currentTopic = topic;
+
+  // Deep copy questions
+  currentQuestions = JSON.parse(JSON.stringify(QUESTIONS[topic]));
+
+  // Shuffle questions
+  shuffle(currentQuestions);
+
+  // Shuffle options for every question
+  currentQuestions.forEach(q => {
+
+    const options = q.opts.map((opt,index) => ({
+      text: opt,
+      correct: index === q.ans
+    }));
+
+    // Fisher-Yates Shuffle
+    for(let i = options.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+
+    q.opts = options.map(o => o.text);
+    q.ans = options.findIndex(o => o.correct);
+  });
+
+  currentIndex = 0;
+  score = 0;
+
   showScreen('quiz');
   renderQuestion();
 }
