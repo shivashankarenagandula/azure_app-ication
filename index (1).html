@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Azure MCQ – From Scratch to Advanced</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --surface2: #e8edf2;
+  --text: #1a1a2e;
+  --text2: #5a6a7a;
+  --border: rgba(0,0,0,0.10);
+  --azure: #0078D4;
+  --azure-dark: #005fa3;
+  --azure-light: #deeeff;
+  --green: #1a8c66;
+  --green-light: #d4f5e9;
+  --red: #c0392b;
+  --red-light: #fde8e6;
+  --amber: #7a4500;
+  --amber-light: #fef0d7;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 14px 60px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+}
+.logo {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, #0078D4, #00b4d8);
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0,120,212,0.35);
+}
+.app-title { font-size: 18px; font-weight: 700; color: var(--text); }
+.app-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.xp-box { margin-left: auto; text-align: right; }
+.xp-label { font-size: 10px; color: var(--text2); font-weight: 600; letter-spacing:.04em; text-transform:uppercase; }
+.xp-val { font-size: 20px; font-weight: 700; color: var(--azure); line-height:1; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin: 18px 0 10px;
+}
+.topic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+.topic-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, transform .1s;
+  box-shadow: var(--shadow);
+  -webkit-tap-highlight-color: transparent;
+  display: block;
+  width: 100%;
+}
+.topic-card:hover { border-color: var(--azure); box-shadow: 0 4px 18px rgba(0,120,212,0.15); }
+.topic-card:active { transform: scale(0.96); }
+.topic-icon { font-size: 26px; margin-bottom: 8px; line-height: 1; display: block; }
+.topic-name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.35; display: block; }
+.topic-count { font-size: 11px; color: var(--text2); margin-top: 3px; display: block; }
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin-top: 9px;
+  letter-spacing:.02em;
+}
+.badge-beg { background: var(--green-light); color: var(--green); }
+.badge-int { background: var(--amber-light); color: var(--amber); }
+.badge-adv { background: var(--red-light); color: var(--red); }
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--azure);
+  cursor: pointer;
+  padding: 10px 0 16px;
+  -webkit-tap-highlight-color: transparent;
+}
+.back-btn:hover { opacity: .75; }
+.back-arrow { font-size: 18px; line-height: 1; }
+
+.q-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.q-topic-label { font-size: 12px; font-weight: 600; color: var(--azure); }
+.q-num-label { font-size: 12px; color: var(--text2); font-weight: 600; }
+
+.progress-wrap {
+  background: var(--surface2);
+  border-radius: 6px;
+  height: 6px;
+  margin-bottom: 16px;
+}
+.progress-bar {
+  height: 6px;
+  background: linear-gradient(90deg, #0078D4, #00b4d8);
+  border-radius: 6px;
+  transition: width .4s ease;
+}
+
+.q-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.65;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 13px 14px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s;
+  box-shadow: var(--shadow);
+  -webkit-tap-highlight-color: transparent;
+}
+.opt:hover:not(.disabled) { border-color: var(--azure); background: var(--azure-light); }
+.opt:active:not(.disabled) { transform: scale(0.98); }
+.opt.correct { border-color: var(--green); background: var(--green-light); }
+.opt.wrong { border-color: var(--red); background: var(--red-light); }
+.opt.disabled { cursor: default; }
+
+.opt-letter {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  flex-shrink: 0;
+  color: var(--text2);
+  background: var(--surface2);
+}
+.opt.correct .opt-letter { background: var(--green); color: #fff; border-color: var(--green); }
+.opt.wrong .opt-letter { background: var(--red); color: #fff; border-color: var(--red); }
+.opt-text { font-size: 14px; color: var(--text); line-height: 1.5; padding-top: 5px; }
+
+.explanation {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: #eef6ff;
+  border-radius: var(--radius);
+  border-left: 4px solid var(--azure);
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+  display: none;
+}
+.explanation.show { display: block; }
+.explanation strong { color: var(--azure); font-weight: 700; }
+
+.btn-row { display: flex; gap: 10px; margin-top: 18px; }
+.btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  transition: background .15s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:hover { background: var(--surface2); }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--azure); color: #fff; border-color: var(--azure); box-shadow: 0 3px 12px rgba(0,120,212,0.3); }
+.btn-primary:hover { background: var(--azure-dark); }
+
+.result-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 30px 20px;
+  text-align: center;
+  margin-top: 8px;
+  box-shadow: var(--shadow);
+}
+.result-score { font-size: 60px; font-weight: 800; color: var(--azure); line-height: 1; }
+.result-label { font-size: 13px; color: var(--text2); margin-top: 4px; font-weight: 600; }
+.result-verdict { font-size: 20px; font-weight: 700; color: var(--text); margin-top: 20px; }
+.result-msg { font-size: 13px; color: var(--text2); margin-top: 6px; line-height: 1.65; }
+.stat-row { display: flex; gap: 10px; margin-top: 22px; }
+.stat { flex: 1; background: var(--surface2); border-radius: var(--radius-sm); padding: 14px 8px; text-align: center; }
+.stat-val { font-size: 24px; font-weight: 800; }
+.stat-lbl { font-size: 11px; color: var(--text2); margin-top: 3px; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">☁️</div>
+    <div>
+      <div class="app-title">Azure MCQ</div>
+      <div class="app-sub">From Scratch to Advanced</div>
+    </div>
+    <div class="xp-box">
+      <div class="xp-label">XP</div>
+      <div class="xp-val" id="xp-display">0</div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div id="screen-home" class="screen active">
+    <div class="section-title">⭐ Beginner</div>
+    <div class="topic-grid">
+      <div class="topic-card" onclick="startTopic('cloud-basics')">
+        <span class="topic-icon">☁️</span>
+        <span class="topic-name">Cloud Basics</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-beg">Beginner</span>
+      </div>
+      <div class="topic-card" onclick="startTopic('azure-core')">
+        <span class="topic-icon">🏗️</span>
+        <span class="topic-name">Azure Core Services</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-beg">Beginner</span>
+      </div>
+    </div>
+
+    <div class="section-title">🔶 Intermediate</div>
+    <div class="topic-grid">
+      <div class="topic-card" onclick="startTopic('storage')">
+        <span class="topic-icon">🗄️</span>
+        <span class="topic-name">Storage & Data</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-int">Intermediate</span>
+      </div>
+      <div class="topic-card" onclick="startTopic('networking')">
+        <span class="topic-icon">🌐</span>
+        <span class="topic-name">Networking & Security</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-int">Intermediate</span>
+      </div>
+      <div class="topic-card" onclick="startTopic('identity')">
+        <span class="topic-icon">🔐</span>
+        <span class="topic-name">Identity & Access</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-int">Intermediate</span>
+      </div>
+      <div class="topic-card" onclick="startTopic('monitoring')">
+        <span class="topic-icon">📊</span>
+        <span class="topic-name">Monitoring & DevOps</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-int">Intermediate</span>
+      </div>
+    </div>
+
+    <div class="section-title">🔴 Advanced</div>
+    <div class="topic-grid">
+      <div class="topic-card" onclick="startTopic('data-engineering')">
+        <span class="topic-icon">⚡</span>
+        <span class="topic-name">Data Engineering</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-adv">Advanced</span>
+      </div>
+      <div class="topic-card" onclick="startTopic('databricks')">
+        <span class="topic-icon">🔥</span>
+        <span class="topic-name">Databricks & Spark</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-adv">Advanced</span>
+      </div>
+      <div class="topic-card" onclick="startTopic('architecture')">
+        <span class="topic-icon">🏛️</span>
+        <span class="topic-name">Cloud Architecture</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-adv">Advanced</span>
+      </div>
+      <div class="topic-card" onclick="startTopic('ai-ml')">
+        <span class="topic-icon">🤖</span>
+        <span class="topic-name">AI & Machine Learning</span>
+        <span class="topic-count">10 questions</span>
+        <span class="badge badge-adv">Advanced</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="back-btn" onclick="goHome()"><span class="back-arrow">←</span> All Topics</div>
+    <div class="q-meta">
+      <span class="q-topic-label" id="q-topic-label"></span>
+      <span class="q-num-label" id="q-num-label"></span>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="q-progress"></div></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+    <div class="explanation" id="q-explanation"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" style="display:none;"></button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="back-btn" onclick="goHome()"><span class="back-arrow">←</span> All Topics</div>
+    <div class="result-card">
+      <div class="result-score" id="res-score"></div>
+      <div class="result-label">Your Score</div>
+      <div class="result-verdict" id="res-verdict"></div>
+      <div class="result-msg" id="res-msg"></div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-val" id="res-correct" style="color:var(--green)"></div><div class="stat-lbl">✅ Correct</div></div>
+        <div class="stat"><div class="stat-val" id="res-wrong" style="color:var(--red)"></div><div class="stat-lbl">❌ Wrong</div></div>
+        <div class="stat"><div class="stat-val" id="res-xp" style="color:var(--azure)"></div><div class="stat-lbl">⭐ XP</div></div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:16px;">
+      <button class="btn" onclick="retryTopic()">🔁 Retry</button>
+      <button class="btn btn-primary" onclick="goHome()">All Topics</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = {
+  'cloud-basics': [
+    {q:"What does IaaS stand for in cloud computing?",opts:["Identity as a Service","Infrastructure as a Service","Internet as a Service","Integration as a Service"],ans:1,exp:"IaaS (Infrastructure as a Service) provides virtualized computing resources like VMs, storage, and networking over the internet. Azure Virtual Machines is a classic IaaS example."},
+    {q:"Which cloud deployment model keeps resources exclusively for one organization?",opts:["Community Cloud","Public Cloud","Hybrid Cloud","Private Cloud"],ans:3,exp:"A Private Cloud is used exclusively by a single organization. It can be hosted on-premises or by a third-party provider, offering greater control and security."},
+    {q:"What is the key benefit of cloud elasticity?",opts:["Automatic scaling up and down based on demand","24/7 human support","Fixed monthly pricing","Data stored only in one region"],ans:0,exp:"Elasticity means the cloud can automatically scale resources up or down to match workload demand, ensuring performance without over-provisioning."},
+    {q:"In the shared responsibility model, who is responsible for physical datacenter security?",opts:["The customer","A third-party auditor","Both equally","The cloud provider"],ans:3,exp:"The cloud provider (like Microsoft Azure) is always responsible for physical security of datacenters, hardware, and network infrastructure."},
+    {q:"What is a Region in Azure?",opts:["A single datacenter building","A subscription boundary","A set of datacenters within a latency-defined perimeter","A virtual network boundary"],ans:2,exp:"An Azure Region is a geographical area containing one or more datacenters networked together with a low-latency perimeter. Examples: East US, West Europe."},
+    {q:"Which service model gives the customer the most control?",opts:["FaaS","PaaS","SaaS","IaaS"],ans:3,exp:"IaaS gives customers the most control — they manage the OS, middleware, and applications, while the provider handles hardware and virtualization."},
+    {q:"What is an Availability Zone in Azure?",opts:["A virtual private network","Physically separate datacenters within an Azure region","A backup region","A DNS routing policy"],ans:1,exp:"Availability Zones are physically separate datacenter locations within an Azure region, each with independent power, cooling, and networking for high availability."},
+    {q:"What does CapEx mean in cloud economics?",opts:["Capital Expenditure — upfront investment in hardware","Cloud API Extension","Cost Aggregation Exchange","Compliance and Extension"],ans:0,exp:"CapEx (Capital Expenditure) refers to upfront spending on physical infrastructure. Cloud shifts organizations from CapEx to OpEx (operational expenditure), paying only for what they use."},
+    {q:"Which of these is a SaaS example from Microsoft?",opts:["Azure Kubernetes Service","Azure Virtual Machines","Microsoft 365","Azure App Service"],ans:2,exp:"Microsoft 365 is SaaS — Microsoft manages everything from infrastructure to the application. Users just use it via a browser or app."},
+    {q:"What are Azure 'paired regions'?",opts:["Two Azure regions paired for disaster recovery and data residency","Two VMs mirroring each other","Two subscriptions linked together","Two storage accounts syncing data"],ans:0,exp:"Azure Paired Regions are two Azure regions within the same geography, paired to provide disaster recovery. If one region goes down, the other serves as failover."}
+  ],
+  'azure-core': [
+    {q:"What is an Azure Resource Group?",opts:["A management group","A virtual network","A container that holds related Azure resources","A billing account"],ans:2,exp:"A Resource Group is a logical container for Azure resources. It helps organize, manage, and apply policies to related resources together."},
+    {q:"Which Azure service runs virtual machines?",opts:["Azure Logic Apps","Azure Virtual Machines","Azure Container Instances","Azure Functions"],ans:1,exp:"Azure Virtual Machines (VMs) is the IaaS compute service. It lets you run Windows or Linux VMs in the cloud with full control over the OS."},
+    {q:"Which Azure service is used for serverless functions?",opts:["Azure Kubernetes Service","Azure Virtual Machines","Azure Functions","Azure App Service"],ans:2,exp:"Azure Functions is the serverless compute service. It runs code in response to triggers without managing infrastructure. You pay only when the code runs."},
+    {q:"What is Azure Blob Storage primarily used for?",opts:["Running virtual machines","Sending messages between services","Storing unstructured data like images and videos","Querying relational databases"],ans:2,exp:"Azure Blob Storage stores massive amounts of unstructured data — images, videos, logs, backups. It has tiers: Hot, Cool, and Archive for cost optimization."},
+    {q:"Which is Azure's managed relational database service?",opts:["Azure Table Storage","Azure Blob Storage","Azure SQL Database","Azure Cosmos DB"],ans:2,exp:"Azure SQL Database is a fully managed PaaS relational database based on SQL Server. It handles backups, patching, and scaling automatically."},
+    {q:"What does AKS stand for?",opts:["Azure Kubernetes Service","Azure Key Service","Azure Knowledge Service","Azure Kafka Streaming"],ans:0,exp:"AKS (Azure Kubernetes Service) is a managed container orchestration service. It simplifies deploying and managing containerized applications using Kubernetes."},
+    {q:"Which Azure service provides a global CDN?",opts:["Azure Front Door","Azure Load Balancer","Azure CDN","Azure Traffic Manager"],ans:2,exp:"Azure CDN caches content at edge nodes worldwide, reducing latency for users by serving content from the nearest location."},
+    {q:"What is Azure App Service used for?",opts:["Hosting web apps, REST APIs, and mobile backends","Monitoring resources","Managing identities","Storing large files"],ans:0,exp:"Azure App Service is a PaaS offering for hosting web applications, APIs, and mobile backends. It supports .NET, Java, Python, Node.js, and more."},
+    {q:"What is the Azure portal?",opts:["A billing dashboard only","A command-line tool","A programming SDK","A web-based management console for Azure services"],ans:3,exp:"The Azure portal (portal.azure.com) is a web-based unified console to create, manage, and monitor all Azure resources visually."},
+    {q:"What is an Azure Subscription?",opts:["A management group","A logical unit of Azure services linked to an account for billing and access","A virtual network","A free trial only"],ans:1,exp:"An Azure Subscription is the billing and access unit for Azure. Resources are created within subscriptions, and costs are tracked at the subscription level."}
+  ],
+  'storage': [
+    {q:"What are the three tiers of Azure Blob Storage?",opts:["Online, Offline, Backup","Hot, Cool, Archive","Fast, Medium, Slow","Basic, Standard, Premium"],ans:1,exp:"Azure Blob Storage offers Hot (frequent access), Cool (infrequent, 30-day minimum), and Archive (rare access, 180-day minimum) tiers to optimize storage costs."},
+    {q:"What type of database is Azure Cosmos DB?",opts:["In-memory cache","Relational database","Graph database only","Globally distributed multi-model NoSQL database"],ans:3,exp:"Azure Cosmos DB is a globally distributed, multi-model NoSQL database supporting SQL, MongoDB, Cassandra, Gremlin, and Table APIs."},
+    {q:"What is Azure Data Lake Storage Gen2 (ADLS Gen2)?",opts:["Hierarchical blob storage optimized for big data analytics","A message queue","A relational database","A CDN service"],ans:0,exp:"ADLS Gen2 combines Azure Blob Storage with a hierarchical namespace (HNS), making it ideal for big data analytics with Hadoop-compatible file system semantics."},
+    {q:"What is the purpose of Azure Queue Storage?",opts:["Relational data","Decoupling application components via message queues","Storing files","Caching data"],ans:1,exp:"Azure Queue Storage provides reliable messaging between application components. Producers add messages; consumers read and process them asynchronously."},
+    {q:"What is Azure Table Storage best suited for?",opts:["Complex joins and transactions","Storing video files","Unstructured binary data","Structured NoSQL data with key-attribute lookups"],ans:3,exp:"Azure Table Storage is a NoSQL key-attribute store for structured data — ideal for user data, device info, or metadata that doesn't need complex joins."},
+    {q:"Which Azure storage redundancy replicates data across paired regions?",opts:["GRS (Geo-Redundant Storage)","SRS (Single Region Storage)","ZRS (Zone Redundant Storage)","LRS (Locally Redundant Storage)"],ans:0,exp:"GRS (Geo-Redundant Storage) replicates data synchronously 3 times locally and then asynchronously to a secondary paired region for disaster recovery."},
+    {q:"What is Azure SQL Managed Instance?",opts:["Fully managed SQL Server with near 100% on-premises compatibility","A serverless SQL option","A SQL cache layer","A NoSQL-only database"],ans:0,exp:"Azure SQL Managed Instance provides near 100% compatibility with on-premises SQL Server, making it ideal for lift-and-shift migrations while staying fully managed."},
+    {q:"What does the hierarchical namespace in ADLS Gen2 enable?",opts:["Atomic directory operations and POSIX-like permissions for big data","Better SQL query performance","Multi-region replication","Automatic backups"],ans:0,exp:"The hierarchical namespace in ADLS Gen2 enables atomic directory operations, POSIX-like access controls (ACLs), and optimized performance for analytics engines like Spark."},
+    {q:"What is Azure Cache for Redis used for?",opts:["Running ML models","High-speed in-memory caching to reduce database load","Storing permanent files","ETL pipelines"],ans:1,exp:"Azure Cache for Redis is a managed in-memory data store. It's used to cache frequently accessed data, reducing latency and database load significantly."},
+    {q:"What is the maximum size of a single Azure Block Blob?",opts:["1 TB","190.7 TB","50 GB","Unlimited"],ans:1,exp:"A single block blob in Azure Blob Storage can be up to 190.7 TB in size, using block upload and combine operations."}
+  ],
+  'networking': [
+    {q:"What is an Azure Virtual Network (VNet)?",opts:["A physical network switch","A logically isolated private network in Azure","A DNS server","A public internet connection"],ans:1,exp:"Azure Virtual Network (VNet) is the fundamental building block for your private network in Azure, enabling resources to securely communicate with each other, the internet, and on-premises networks."},
+    {q:"What is a Network Security Group (NSG)?",opts:["A filter with security rules that allow/deny traffic to Azure resources","A load balancer","A DDoS protection service","A VPN gateway"],ans:0,exp:"An NSG contains security rules that allow or deny inbound and outbound traffic to Azure resources. Rules are evaluated by priority."},
+    {q:"What is Azure VPN Gateway used for?",opts:["CDN routing","Sending encrypted traffic between Azure VNets and on-premises networks","Connecting VNets to the internet","Load balancing HTTP traffic"],ans:1,exp:"Azure VPN Gateway sends encrypted traffic between Azure virtual networks and on-premises locations over the public internet using IPsec/IKE tunnels."},
+    {q:"What is Azure ExpressRoute?",opts:["A CDN service","A VPN over the internet","A private dedicated connection from on-premises to Azure bypassing the internet","A free public internet connection"],ans:2,exp:"Azure ExpressRoute provides private, dedicated connections between on-premises networks and Azure datacenters, bypassing the public internet for higher reliability and lower latency."},
+    {q:"What does Azure DDoS Protection Standard provide?",opts:["Adaptive real-time traffic scrubbing against DDoS attacks","Identity verification","Firewall rules","Antivirus scanning"],ans:0,exp:"Azure DDoS Protection Standard provides enhanced mitigation against DDoS attacks, with adaptive tuning and real-time telemetry and alerts."},
+    {q:"What is the purpose of Azure Load Balancer?",opts:["Encrypting data in transit","Distributing inbound traffic across backend VMs for high availability","Managing DNS records","Storing data across regions"],ans:1,exp:"Azure Load Balancer distributes inbound traffic across healthy backend VMs. It operates at Layer 4 (TCP/UDP) for high availability and scale."},
+    {q:"What layer does Azure Application Gateway operate at?",opts:["Layer 3 (Network)","Layer 7 (Application/HTTP)","Layer 4 (Transport)","Layer 2 (Data Link)"],ans:1,exp:"Azure Application Gateway is a Layer 7 (HTTP/HTTPS) load balancer. It routes based on URL path, host headers, and includes a built-in WAF (Web Application Firewall)."},
+    {q:"What is Azure Private Endpoint?",opts:["A VPN tunnel","A network interface connecting you privately to an Azure service via Private Link","A public IP address","A DNS record"],ans:1,exp:"Azure Private Endpoint uses a private IP from your VNet to connect privately to an Azure service, keeping traffic off the public internet."},
+    {q:"What is Azure Firewall?",opts:["A CDN edge node","A load balancing rule","A SSL certificate manager","A managed cloud-native network security service with FQDN filtering and threat intelligence"],ans:3,exp:"Azure Firewall is a managed, cloud-native firewall with built-in high availability. It provides FQDN filtering, network/application rules, and Microsoft threat intelligence integration."},
+    {q:"What is VNet Peering?",opts:["Connecting two Azure VNets so resources communicate privately","Creating a VPN tunnel","Connecting a VNet to the internet","Sharing a public IP"],ans:0,exp:"VNet Peering connects two Azure VNets using Microsoft's backbone infrastructure. Peered VNets appear as one for connectivity purposes with low latency and high bandwidth."}
+  ],
+  'identity': [
+    {q:"What is Azure Active Directory (Azure AD)?",opts:["A firewall service","Microsoft's cloud-based identity and access management service","A file directory service","A DNS server"],ans:1,exp:"Azure AD (now Microsoft Entra ID) is Microsoft's cloud-based identity and access management service, providing SSO, MFA, and conditional access for apps and resources."},
+    {q:"What does RBAC stand for in Azure?",opts:["Role-Based Access Control","Resource-Based Access Control","Registry-Based Authentication Control","Runtime Binary Access Control"],ans:0,exp:"RBAC (Role-Based Access Control) lets you manage who has access to Azure resources, what they can do with them, and what areas they have access to, by assigning roles."},
+    {q:"What is Multi-Factor Authentication (MFA)?",opts:["Authentication requiring two or more verification methods","Password-only authentication","Biometric-only authentication","Single sign-on"],ans:0,exp:"MFA requires users to provide two or more verification methods — something you know (password), something you have (phone), or something you are (biometric)."},
+    {q:"What is Azure Managed Identity used for?",opts:["Managing user accounts","Providing Azure services with an automatically managed identity in Azure AD","Creating VMs","Network security"],ans:1,exp:"Managed Identity provides an Azure service (like a VM or Function App) with an automatically managed identity in Azure AD, eliminating the need to store credentials in code."},
+    {q:"What is Conditional Access in Azure AD?",opts:["A firewall rule","Policies that enforce access controls based on signals like user, location, and device","A VPN policy","A backup policy"],ans:1,exp:"Conditional Access uses signals (user identity, location, device compliance) to make automated access decisions — for example, requiring MFA when logging in from an unknown location."},
+    {q:"What is the principle of least privilege?",opts:["Giving users all permissions by default","Sharing credentials among teams","Using admin accounts for daily work","Granting users only the minimum permissions needed to do their job"],ans:3,exp:"Least privilege means granting only the permissions necessary for a user or service to do their job. It minimizes the blast radius if an account is compromised."},
+    {q:"What is Azure Key Vault?",opts:["A VM encryption tool only","A password manager for users","A cloud service for storing and managing secrets, keys, and certificates","A physical key storage facility"],ans:2,exp:"Azure Key Vault securely stores and controls access to secrets (passwords, API keys), encryption keys, and certificates. It integrates with Azure services and applications."},
+    {q:"What is a Service Principal in Azure?",opts:["A subscription owner","A network policy","A user with admin rights","An identity created for automated tools and apps to access Azure resources"],ans:3,exp:"A Service Principal is an identity for applications, services, and automation tools. It's like a 'user identity' for a non-human actor, with specific permissions via RBAC."},
+    {q:"What does PIM stand for in Azure security?",opts:["Primary Integration Module","Policy Identity Manager","Privileged Identity Management — just-in-time privileged access","Private Identity Management"],ans:2,exp:"Azure AD PIM (Privileged Identity Management) provides just-in-time (JIT) privileged access, requiring users to activate elevated roles only when needed, reducing standing privileged access risk."},
+    {q:"What is Zero Trust security?",opts:["Never trust, always verify — authenticate every request regardless of location","Disabling all authentication","Using VPN only","Trusting everything inside the network perimeter"],ans:0,exp:"Zero Trust is a security model based on 'never trust, always verify.' Every access request is fully authenticated and authorized regardless of whether it comes from inside or outside the network."}
+  ],
+  'monitoring': [
+    {q:"What is Azure Monitor?",opts:["A backup service","A CDN service","A comprehensive solution for collecting, analyzing, and acting on telemetry from cloud environments","A virtual machine type"],ans:2,exp:"Azure Monitor is the unified monitoring platform collecting metrics and logs from Azure resources. It powers dashboards, alerts, and integrates with Log Analytics and Application Insights."},
+    {q:"What does Azure Log Analytics provide?",opts:["A visual designer for apps","A workspace for querying and analyzing log data using KQL (Kusto Query Language)","A billing dashboard","A network scanner"],ans:1,exp:"Azure Log Analytics is a tool within Azure Monitor for writing and running log queries using KQL to analyze data collected from Azure resources."},
+    {q:"What is Application Insights?",opts:["A network monitoring tool","A storage analytics tool","An application performance management (APM) service for live web apps","A VM monitoring tool"],ans:2,exp:"Application Insights is an APM service that monitors live web applications. It auto-detects anomalies, provides dependency maps, and supports distributed tracing."},
+    {q:"What is Azure DevOps?",opts:["A networking tool","An identity service","A cloud VM service","A set of developer services for planning, building, testing, and deploying applications"],ans:3,exp:"Azure DevOps provides Boards (work tracking), Repos (Git), Pipelines (CI/CD), Test Plans, and Artifacts — a complete DevOps toolchain for software development teams."},
+    {q:"What is CI/CD in Azure Pipelines?",opts:["Custom Integration/Custom Delivery","Cloud Infrastructure/Cloud Deployment","Continuous Integration/Continuous Deployment — automating build, test, and deployment","Central Index/Central Database"],ans:2,exp:"CI/CD means Continuous Integration (automatically building and testing code on every commit) and Continuous Deployment (automatically deploying tested code to environments)."},
+    {q:"What is Azure Policy used for?",opts:["Creating VMs automatically","Load balancing policy","Managing user passwords","Enforcing organizational rules on Azure resources and evaluating compliance"],ans:3,exp:"Azure Policy enforces organizational standards by evaluating resources for compliance with assigned rules. It can audit, deny, or auto-remediate non-compliant resources."},
+    {q:"What is the purpose of Azure Cost Management?",opts:["Managing VMs","Managing user identities","Monitoring, allocating, and optimizing Azure spending","Securing network traffic"],ans:2,exp:"Azure Cost Management + Billing helps analyze, monitor, and optimize cloud spending. It provides cost analysis, budgets, alerts, and recommendations to reduce waste."},
+    {q:"What is Infrastructure as Code (IaC)?",opts:["A programming language","Writing code inside a VM","A monitoring tool","Managing and provisioning infrastructure through machine-readable configuration files"],ans:3,exp:"IaC means defining your infrastructure in code (Bicep, ARM templates, or Terraform) so it can be version-controlled, reviewed, and deployed repeatedly and consistently."},
+    {q:"What is Azure Resource Manager (ARM)?",opts:["A storage type","The deployment and management service for Azure providing a consistent management layer","A monitoring dashboard","A VM type"],ans:1,exp:"ARM is the management layer for Azure. ARM templates (JSON) define infrastructure declaratively and are the native IaC format for Azure."},
+    {q:"What is Azure Advisor?",opts:["A support ticket system","An AI chatbot","A VM configuration tool","A personalized consultant providing best practice recommendations for reliability, security, performance, and cost"],ans:3,exp:"Azure Advisor analyzes your resource configuration and usage and provides actionable recommendations across reliability, security, performance, operational excellence, and cost categories."}
+  ],
+  'data-engineering': [
+    {q:"What is Azure Data Factory (ADF)?",opts:["A cloud-based ETL/ELT data integration service for orchestrating data pipelines","A virtual machine for data","A SQL database","A real-time streaming service"],ans:0,exp:"Azure Data Factory is a fully managed, serverless data integration service. It creates data-driven workflows (pipelines) for orchestrating data movement and transformation at scale."},
+    {q:"What is the Medallion Architecture in Azure Databricks?",opts:["A Spark configuration","A billing model","A multi-layer data lakehouse pattern: Bronze (raw), Silver (cleaned), Gold (business-ready)","A physical server layout"],ans:2,exp:"The Medallion Architecture organizes data in layers: Bronze (raw ingested data), Silver (validated/cleaned data), Gold (aggregated, business-ready data). It progressively improves data quality."},
+    {q:"What is Delta Lake?",opts:["A streaming platform","A networking service","An open-source storage layer adding ACID transactions, schema enforcement, and time travel to data lakes","A physical data lake"],ans:2,exp:"Delta Lake brings ACID transactions, scalable metadata handling, schema evolution, time travel (data versioning), and upserts (MERGE) to data lakes."},
+    {q:"What does AQE (Adaptive Query Execution) do in Spark?",opts:["Schedules jobs on a fixed schedule","Pre-compiles SQL queries","Runs queries on any cloud","Dynamically optimizes query execution plans at runtime based on actual data statistics"],ans:3,exp:"AQE (since Spark 3.0) re-optimizes query plans at runtime using actual statistics, enabling coalescing partitions, switching join strategies, and skew handling."},
+    {q:"What is data skew in PySpark and how does salting fix it?",opts:["Data written to wrong storage — fix with repartition","Data type mismatch — fix with casting","Data sorted incorrectly — fix with ORDER BY","Uneven data distribution across partitions — salting adds a random key to split large partitions"],ans:3,exp:"Data skew occurs when some partitions have much more data than others, causing slow tasks. Salting adds a random integer to the join key, distributing the skewed partition across multiple partitions."},
+    {q:"What is a broadcast join in Spark?",opts:["Sending data over a network broadcast","Streaming join","Broadcasting a small DataFrame to all executor nodes to avoid shuffle in joins","A join across multiple clusters"],ans:2,exp:"A broadcast join sends a small DataFrame to all executor nodes, enabling hash joins without expensive shuffle operations. Configured via spark.sql.autoBroadcastJoinThreshold."},
+    {q:"What is Azure Synapse Analytics?",opts:["A virtual machine cluster","A streaming-only service","An analytics service combining big data and data warehousing with Spark, SQL, and Pipelines in one workspace","A BI visualization tool"],ans:2,exp:"Azure Synapse Analytics integrates big data (Apache Spark) and enterprise data warehousing (dedicated SQL pools), with Pipelines, Synapse Link, and Power BI integration in one workspace."},
+    {q:"What is Azure Event Hubs used for?",opts:["A file storage service","A big data streaming platform ingesting millions of events per second for real-time analytics","A VM management tool","A message queue for emails"],ans:1,exp:"Azure Event Hubs is a fully managed, real-time data ingestion service. It can ingest millions of events/second from apps, devices, and services for real-time processing."},
+    {q:"What is the difference between narrow and wide transformations in Spark?",opts:["Narrow is for small data, wide is for large data","No difference","Narrow transformations don't cause shuffles (map, filter); wide transformations require shuffle (groupBy, join, repartition)","Narrow is for batch, wide is for streaming"],ans:2,exp:"Narrow transformations (map, filter, select) process partitions independently with no data shuffle. Wide transformations (groupBy, join, repartition) require shuffling data across the network."},
+    {q:"What is Delta MERGE (UPSERT) used for?",opts:["Deleting all records","Schema migration","Inserting new records and updating existing ones atomically in a single operation","Only reading data"],ans:2,exp:"Delta MERGE (UPSERT) combines INSERT and UPDATE in one atomic operation: if a matching record exists, it updates it; otherwise, it inserts a new record. Commonly used for CDC patterns."}
+  ],
+  'databricks': [
+    {q:"What is Apache Spark's Catalyst optimizer?",opts:["A memory manager","A query optimization framework transforming logical plans to efficient physical execution plans","A physical storage optimizer","A cluster scheduler"],ans:1,exp:"Catalyst is Spark's extensible query optimizer. It transforms SQL/DataFrame logical plans through analysis, logical optimization, physical planning, and code generation phases."},
+    {q:"What is the Tungsten execution engine in Spark?",opts:["Spark's physical execution engine for CPU and memory efficiency via off-heap memory and code generation","A streaming engine","A cluster manager","A SQL parser"],ans:0,exp:"Tungsten operates on binary data directly off-heap, uses cache-aware data structures, and generates JVM bytecode at runtime for maximum CPU efficiency."},
+    {q:"What is Unity Catalog in Databricks?",opts:["A billing dashboard","A file catalog","A unified governance solution for data and AI assets across all Databricks workspaces with fine-grained access control","A cluster configuration"],ans:2,exp:"Unity Catalog provides centralized governance across all Databricks workspaces — unified access control, data lineage, auditing, and discovery for tables, volumes, models, and functions."},
+    {q:"What are Databricks Delta Live Tables (DLT)?",opts:["A Delta table type","A visualization tool","A cluster type","A declarative framework for building reliable, maintainable data processing pipelines automatically"],ans:3,exp:"Delta Live Tables is a declarative ETL framework where you define transformations and Databricks automatically manages orchestration, error handling, monitoring, and data quality expectations."},
+    {q:"What is the role of Driver vs Executor in a Databricks Cluster?",opts:["Driver stores data; Executors plan queries","Both do the same work","Driver coordinates the job (SparkContext, DAG scheduler); Executors run tasks and store data","Only Driver runs code"],ans:2,exp:"The Driver runs the SparkContext, creates the DAG, schedules tasks, and coordinates results. Executors run the actual tasks in parallel on worker nodes."},
+    {q:"What is Z-Ordering in Delta Lake?",opts:["A replication strategy","A compression algorithm","Colocating related data in the same files to improve query performance through data skipping","Sorting data alphabetically"],ans:2,exp:"Z-Ordering (ZORDER BY) co-locates related data in the same Delta files. Combined with Delta's min/max statistics, it allows the query engine to skip entire files that don't contain relevant data."},
+    {q:"What is Auto Loader in Databricks?",opts:["A dashboard auto-refresh tool","A ML model loader","Incrementally loads new data files from cloud storage as they arrive, using file notifications","An automatic cluster startup tool"],ans:2,exp:"Auto Loader (cloudFiles source in Structured Streaming) uses cloud file notifications to efficiently ingest new files from ADLS Gen2 or S3 incrementally, without listing all files."},
+    {q:"What is the checkpoint in Structured Streaming?",opts:["A manual save button","A location where Spark stores streaming query progress to enable fault-tolerant restarts","A cluster snapshot","A data validation step"],ans:1,exp:"Checkpointing in Structured Streaming saves the query's progress (consumed offsets, state store) to a durable location. On failure, the query restarts exactly from where it left off."},
+    {q:"What is MLflow in the Databricks context?",opts:["A streaming platform","A SQL engine","An open-source platform for managing the ML lifecycle: experiment tracking, model registry, and deployment","A machine learning cloud service"],ans:2,exp:"MLflow is an open-source ML lifecycle platform integrated into Databricks. It tracks experiments, registers models in the Model Registry, and manages deployment."},
+    {q:"What is VACUUM in Delta Lake used for?",opts:["Refreshing the catalog","Compressing active files","Removing files no longer referenced by the Delta table older than the retention threshold (default 7 days)","Cleaning up old logs"],ans:2,exp:"VACUUM removes data files no longer referenced by a Delta table and older than the retention threshold (default 7 days). It reclaims storage but removes time-travel ability beyond that threshold."}
+  ],
+  'architecture': [
+    {q:"What is the Azure Well-Architected Framework?",opts:["A billing framework","A VM sizing guide","A networking standard","Five pillars guiding cloud solution design: Reliability, Security, Cost Optimization, Operational Excellence, Performance Efficiency"],ans:3,exp:"The Azure Well-Architected Framework provides 5 pillars: Reliability, Security, Cost Optimization, Operational Excellence, and Performance Efficiency."},
+    {q:"What is a microservices architecture?",opts:["A physical server layout","A database architecture","An approach structuring an application as a collection of small, independently deployable services","One large application handling all functions"],ans:2,exp:"Microservices architecture decomposes an application into small, independently deployable services, each with its own process and database, communicating via APIs."},
+    {q:"What is the CQRS pattern?",opts:["Command Query Responsibility Segregation — separating read and write operations into different models","A caching pattern","A security pattern","A CI/CD pattern"],ans:0,exp:"CQRS (Command Query Responsibility Segregation) separates the read (query) model from the write (command) model. It optimizes each path independently and is common in event-driven systems."},
+    {q:"What is Event Sourcing?",opts:["A streaming data pattern","A database backup pattern","Storing all changes to application state as a sequence of immutable events","Logging errors only"],ans:2,exp:"Event Sourcing stores every state change as an immutable event in an event log. Current state is derived by replaying events. This enables full audit trails and temporal queries."},
+    {q:"What is the purpose of a Message Queue in distributed architecture?",opts:["Decoupling producers and consumers by buffering messages, enabling async communication","Storing permanent data","Running compute jobs","Managing identities"],ans:0,exp:"Message queues (like Azure Service Bus) decouple services: producers send messages without waiting for consumers. This enables async processing, load leveling, and fault tolerance."},
+    {q:"What is Chaos Engineering?",opts:["Deliberately injecting failures into a system to test its resilience and identify weaknesses","A performance benchmark","A security testing method","Random code changes"],ans:0,exp:"Chaos Engineering intentionally introduces failures — network latency, node crashes, CPU spikes — to validate that a system can recover gracefully before real outages occur."},
+    {q:"What is the Circuit Breaker pattern?",opts:["A security firewall rule","A data ingestion pattern","A deployment pattern","A pattern that stops calls to a failing service and provides a fallback, preventing cascading failures"],ans:3,exp:"The Circuit Breaker pattern monitors failures; when a threshold is exceeded, it opens the circuit and returns errors immediately without calling the failing service until it recovers."},
+    {q:"What is the Strangler Fig pattern?",opts:["A security pattern","A data migration tool","Removing all legacy code at once","Incrementally migrating a legacy system by gradually replacing specific functions with new services"],ans:3,exp:"The Strangler Fig pattern incrementally replaces a legacy system by routing specific requests to new services alongside the old system, gradually retiring the legacy system."},
+    {q:"What is SLA vs SLO?",opts:["SLA is a legal contract with customers; SLO is an internal reliability goal","Neither is related to reliability","SLA is internal; SLO is external","Both are the same thing"],ans:0,exp:"An SLA is a formal contract with customers (e.g., 99.9% uptime). An SLO is an internal reliability target teams aim to maintain. SLOs should be stricter than SLAs to leave an error budget."},
+    {q:"What is the purpose of a Service Mesh?",opts:["A network switch configuration","A CDN layer","A database connection pooler","Infrastructure layer handling service-to-service communication with observability, traffic management, and mTLS for microservices"],ans:3,exp:"A Service Mesh handles cross-cutting concerns for microservices — mutual TLS, traffic splitting, retries, circuit breaking, distributed tracing — without modifying application code, via sidecar proxies."}
+  ],
+  'ai-ml': [
+    {q:"What is Azure Machine Learning (Azure ML)?",opts:["An enterprise-grade cloud platform for building, training, deploying, and managing ML models at scale","A data storage service","A BI visualization tool","A pre-built AI API"],ans:0,exp:"Azure Machine Learning is a cloud platform for the entire ML lifecycle: data preparation, experiment tracking, model training (AutoML, custom), model registry, and deployment to endpoints."},
+    {q:"What is Azure AI Services (formerly Cognitive Services)?",opts:["A custom ML training platform","A data warehouse","Pre-built AI APIs for vision, speech, language, decision, and search without ML expertise","A chatbot platform"],ans:2,exp:"Azure AI Services provides pre-built AI REST APIs: Computer Vision, Face API, Speech-to-Text, Text Analytics, Translator, Form Recognizer, and more."},
+    {q:"What is Azure OpenAI Service?",opts:["Microsoft's own AI company","Access to OpenAI's models (GPT-4, DALL-E, Whisper) via Azure with enterprise security and compliance","A data labeling service","A free AI tool"],ans:1,exp:"Azure OpenAI Service provides REST API access to OpenAI's models (GPT-4, GPT-3.5, DALL-E, Whisper, Embeddings) with Azure's enterprise security, RBAC, private networking, and compliance."},
+    {q:"What is Responsible AI in Azure?",opts:["Microsoft's framework for developing AI that is fair, reliable, safe, private, inclusive, transparent, and accountable","An AI pricing model","Making AI that responds quickly","An AI benchmarking tool"],ans:0,exp:"Azure Responsible AI is a framework and set of tools ensuring AI systems are fair (bias detection), reliable, safe, private, inclusive, transparent (explainability), and accountable."},
+    {q:"What is AutoML in Azure Machine Learning?",opts:["Automated deployment only","Automatically deleting old ML models","Automated Machine Learning that tries multiple algorithms and hyperparameters to find the best model automatically","A Python library"],ans:2,exp:"Azure AutoML automates the tedious iteration of ML: feature engineering, algorithm selection, hyperparameter tuning. It tries many combinations and returns the best model for your data and task."},
+    {q:"What is a Feature Store in ML?",opts:["A data lake","A centralized repository for storing, sharing, and discovering ML features for training and real-time inference","A model registry","A marketplace for buying ML models"],ans:1,exp:"A Feature Store centralizes ML features — computed from raw data — so they can be shared across teams, reused for training and serving, and kept consistent between training and inference."},
+    {q:"What is RAG (Retrieval-Augmented Generation)?",opts:["A data compression technique","A cloud storage method","A neural network architecture","A pattern combining vector search (retrieval) with LLM generation to ground responses in specific documents"],ans:3,exp:"RAG retrieves relevant documents from a knowledge base (using vector/semantic search) and provides them as context to an LLM, enabling it to answer questions grounded in specific, up-to-date documents."},
+    {q:"What is Azure AI Search (formerly Cognitive Search)?",opts:["A SQL query tool","A monitoring service","A cloud search service with AI capabilities (vector search, semantic ranking) for building rich search experiences","A web search engine"],ans:2,exp:"Azure AI Search provides enterprise search with AI enrichment — it can crack documents, extract entities, generate embeddings for vector search, and apply semantic ranking for relevance."},
+    {q:"What is model drift in MLOps?",opts:["Degradation of model performance over time as real-world data distribution changes from training data","A storage error","A model deployment error","A network latency issue"],ans:0,exp:"Model drift (data drift or concept drift) occurs when the statistical properties of input data or the relationship between inputs and outputs change over time, causing model performance to degrade in production."},
+    {q:"What is the purpose of Azure Prompt Flow?",opts:["A network flow analyzer","A visual data pipeline tool","A development tool to build, evaluate, and deploy LLM-based applications by visually chaining prompts, tools, and logic","A CI/CD tool"],ans:2,exp:"Azure Prompt Flow is a development suite for building LLM apps — visually chain prompts, Python functions, and tools into a flow, evaluate quality with test sets, and deploy to an endpoint."}
+  ]
+};
+
+const TOPIC_NAMES={'cloud-basics':'Cloud Basics','azure-core':'Azure Core Services','storage':'Storage & Data','networking':'Networking & Security','identity':'Identity & Access','monitoring':'Monitoring & DevOps','data-engineering':'Data Engineering','databricks':'Databricks & Spark','architecture':'Cloud Architecture','ai-ml':'AI & Machine Learning'};
+
+let currentTopic=null,currentQuestions=[],currentIndex=0,score=0,answered=false;
+let totalXP=0;
+try{totalXP=parseInt(localStorage.getItem('azureMCQ_xp')||'0');}catch(e){}
+document.getElementById('xp-display').textContent=totalXP;
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active');window.scrollTo(0,0);}
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+function startTopic(topic){currentTopic=topic;currentQuestions=shuffle([...QUESTIONS[topic]]);currentIndex=0;score=0;showScreen('quiz');renderQuestion();}
+function renderQuestion(){
+  const q=currentQuestions[currentIndex];answered=false;
+  const total=currentQuestions.length;
+  document.getElementById('q-topic-label').textContent=TOPIC_NAMES[currentTopic];
+  document.getElementById('q-num-label').textContent=(currentIndex+1)+' / '+total;
+  document.getElementById('q-progress').style.width=(currentIndex/total*100)+'%';
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('q-explanation').className='explanation';
+  document.getElementById('q-explanation').innerHTML='';
+  document.getElementById('btn-next').style.display='none';
+  const letters=['A','B','C','D'],opts=document.getElementById('q-options');
+  opts.innerHTML='';
+  q.opts.forEach(function(opt,i){
+    const div=document.createElement('div');
+    div.className='opt';
+    div.innerHTML='<div class="opt-letter">'+letters[i]+'</div><div class="opt-text">'+opt+'</div>';
+    div.onclick=function(){selectAnswer(i);};
+    opts.appendChild(div);
+  });
+}
+function selectAnswer(selected){
+  if(answered)return;answered=true;
+  const q=currentQuestions[currentIndex];
+  const optEls=document.querySelectorAll('.opt');
+  optEls.forEach(function(el){el.classList.add('disabled');});
+  optEls[selected].classList.add(selected===q.ans?'correct':'wrong');
+  if(selected!==q.ans)optEls[q.ans].classList.add('correct');
+  if(selected===q.ans)score++;
+  const exp=document.getElementById('q-explanation');
+  exp.innerHTML='<strong>Explanation:</strong> '+q.exp;
+  exp.className='explanation show';
+  const btn=document.getElementById('btn-next');
+  btn.style.display='block';
+  btn.textContent=currentIndex<currentQuestions.length-1?'Next →':'See Results';
+}
+function nextQuestion(){currentIndex++;if(currentIndex>=currentQuestions.length)showResults();else renderQuestion();}
+function showResults(){
+  const total=currentQuestions.length,pct=Math.round(score/total*100),xpEarned=score*10;
+  totalXP+=xpEarned;
+  try{localStorage.setItem('azureMCQ_xp',totalXP);}catch(e){}
+  document.getElementById('xp-display').textContent=totalXP;
+  document.getElementById('res-score').textContent=pct+'%';
+  document.getElementById('res-correct').textContent=score;
+  document.getElementById('res-wrong').textContent=total-score;
+  document.getElementById('res-xp').textContent='+'+xpEarned;
+  const verdicts=[[90,'🏆 Excellent!','You have strong command of this topic. Ready for Azure certification!'],[70,'✅ Good Job!','Solid understanding. Review the explanations to fill remaining gaps.'],[50,'📚 Keep Going',"You're on the right track. Re-read the explanations and try again."],[0,'🔁 Keep Practicing',"Don't worry — learning takes time. Review each explanation carefully."]];
+  const v=verdicts.find(function(x){return pct>=x[0];});
+  document.getElementById('res-verdict').textContent=v[1];
+  document.getElementById('res-msg').textContent=v[2];
+  showScreen('result');
+}
+function retryTopic(){startTopic(currentTopic);}
+function goHome(){showScreen('home');}
+</script>
+</body>
+</html>
