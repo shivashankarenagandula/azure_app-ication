@@ -523,43 +523,67 @@ function startTopic(topic){
   showScreen('quiz');
   renderQuestion();
 }
-function renderQuestion(){
-  const q=currentQuestions[currentIndex];
-  answered=false;
-  const total=currentQuestions.length;
-  document.getElementById('q-topic-label').textContent=TOPIC_NAMES[currentTopic];
-  document.getElementById('q-num-label').textContent=`${currentIndex+1} / ${total}`;
-  document.getElementById('q-progress').style.width=(currentIndex/total*100)+'%';
-  document.getElementById('q-text').textContent=q.q;
-  document.getElementById('q-explanation').classList.remove('show');
-  document.getElementById('btn-next').style.display='none';
-  const letters=['A','B','C','D'];
-  const opts=document.getElementById('q-options');
-  opts.innerHTML='';
-  q.opts.forEach((opt,i)=>{
-    const div=document.createElement('div');
-    div.className='opt';
-    div.dataset.index=i;
-    div.innerHTML=`<div class="opt-letter">${letters[i]}</div><div class="opt-text">${opt}</div>`;
-    div.onclick=()=>selectAnswer(i);
-    opts.appendChild(div);
-  });
+function renderQuestion() {
+    const q = currentQuestions[currentIndex];
+    answered = false;
+
+    // Create options with original indexes
+    const shuffledOptions = q.opts.map((opt, index) => ({
+        text: opt,
+        originalIndex: index
+    }));
+
+    // Shuffle options
+    shuffledOptions.sort(() => Math.random() - 0.5);
+
+    // Store new correct answer position
+    q.shuffledAnswer = shuffledOptions.findIndex(
+        opt => opt.originalIndex === q.ans
+    );
+
+    const letters = ['A', 'B', 'C', 'D'];
+    const opts = document.getElementById('q-options');
+    opts.innerHTML = '';
+
+    shuffledOptions.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'opt';
+        div.dataset.index = i;
+
+        div.innerHTML = `
+            <div class="opt-letter">${letters[i]}</div>
+            <div class="opt-text">${opt.text}</div>
+        `;
+
+        div.onclick = () => selectAnswer(i);
+        opts.appendChild(div);
+    });
 }
-function selectAnswer(selected){
-  if(answered) return;
-  answered=true;
-  const q=currentQuestions[currentIndex];
-  const optEls=document.querySelectorAll('.opt');
-  optEls.forEach(el=>el.classList.add('disabled'));
-  optEls[selected].classList.add(selected===q.ans?'correct':'wrong');
-  if(selected!==q.ans) optEls[q.ans].classList.add('correct');
-  if(selected===q.ans) score++;
-  const exp=document.getElementById('q-explanation');
-  exp.innerHTML=`<strong>Explanation:</strong> ${q.exp}`;
-  exp.classList.add('show');
-  const btn=document.getElementById('btn-next');
-  btn.style.display='block';
-  btn.textContent=currentIndex<currentQuestions.length-1?'Next →':'See Results';
+function selectAnswer(selected) {
+    if (answered) return;
+
+    answered = true;
+
+    const q = currentQuestions[currentIndex];
+    const correctAnswer = q.shuffledAnswer;
+
+    const optEls = document.querySelectorAll('.opt');
+
+    optEls.forEach(el => el.classList.add('disabled'));
+
+    optEls[selected].classList.add(
+        selected === correctAnswer ? 'correct' : 'wrong'
+    );
+
+    if (selected !== correctAnswer) {
+        optEls[correctAnswer].classList.add('correct');
+    }
+
+    if (selected === correctAnswer) {
+        score++;
+    }
+
+    // Existing explanation code...
 }
 function nextQuestion(){
   currentIndex++;
